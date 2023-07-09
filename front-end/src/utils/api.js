@@ -52,7 +52,25 @@ async function fetchJson(url, options, onCancel) {
   }
 }
 
+/**
+ * insert a new row in tables.
+ * @returns {Promise<[reservation]>}
+ */
+export async function insertTable(table, signal) {
+  const url = `${API_BASE_URL}/tables`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(table),
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
 
+/**
+ * Inserts a reservation into the db
+ * @returns {Promise<[reservation]>}
+ */
 export async function insertReservation(reservation, signal) {
   const url = `${API_BASE_URL}/reservations`;
   const options = {
@@ -78,4 +96,15 @@ export async function listReservations(params, signal) {
   return await fetchJson(url, { headers, signal }, [])
     .then(formatReservationDate)
     .then(formatReservationTime);
+}
+
+/**
+ * Retrieves all existing tables.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to a possibly empty array of tables saved in the database.
+ */
+
+export async function listTables(signal) {
+  const url = new URL(`${API_BASE_URL}/tables`);
+  return await fetchJson(url, { headers, signal }, [])
 }
