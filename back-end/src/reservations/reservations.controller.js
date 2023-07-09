@@ -5,7 +5,11 @@ const connection = require("../db/connection");
  */
 async function list(req, res) {
   try{
-    console.log('request received');
+    const {date} = req.params;
+    console.log('request received', date);
+    const response = await connection('reservations');
+    
+    return req.status(200).send({data: response})
   }catch(e){
     console.log(e);
   }

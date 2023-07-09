@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { insertReservation } from "../utils/api";
 import { useHistory } from "react-router-dom";
-
+import ErrorAlert from "../layout/ErrorAlert";
 /**
  * Defines the ReservationForm page.
  * @param date
@@ -16,14 +16,31 @@ function ReservationForm() {
   const [reserveTime, setReserveTime] = useState('');
   const [people, setPeople] = useState('');
   const history = useHistory();
-//   const [reservationsError, setReservationsError] = useState(null);
+  const [reservationsError, setReservationsError] = useState(null);
+
+  function cancelClick(e){
+    e.preventDefault();
+    history.goBack();
+  }
+
+  function dateValidation(){
+    const receivedDate = new Date(reserveDate);
+    const todayDate = new Date();
+
+    if(receivedDate < todayDate || receivedDate.getDay() == 1){
+      setReservationsError({message: "Make sure the date is greater than today and all inputs are correct"})
+      return false
+    }
+
+    return true;
+  }
 
   async function onSubmit(e){
     e.preventDefault();
 
     try{
+      if(dateValidation()){
         const abortController = new AbortController();
-        // setReservationsError(null);
         const reserveObj = {
             "first_name": name,
             "last_name": lastName,
@@ -32,20 +49,19 @@ function ReservationForm() {
             "reservation_time":reserveTime,
             people
         }
-        const response = await insertReservation( reserveObj ,abortController.signal);
-        //Creating abort controller
-        history.push('/dashboard')
+        await insertReservation( reserveObj ,abortController.signal);
+        history.push('/dashboard');
+      }
+        
         // abortController.abort();
         // listReservations({ date }, abortController.signal)
         // .then(setReservations)
         // .catch(setReservationsError);
         // return () => abortController.abort();
     }catch(e){
-        // setReservationsError(true);
+        setReservationsError({message: "Make sure the date is greater than today and all inputs are correct"});
         console.log(e);
     }
-    console.log('submitted')
-    return
   }
 
   return (
@@ -90,7 +106,11 @@ function ReservationForm() {
                 onChange={(e)=>setPeople(e.target.value)}
                 value={people} /> 
 
+            <ErrorAlert error={reservationsError}/>
+            
             <button type="submit">Submit</button>
+            <button type="button"
+              onClick={(e)=>{cancelClick(e)}}>cancel</button>
         </form>
       </div>
       
