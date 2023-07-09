@@ -27,7 +27,7 @@ function ReservationForm() {
     const receivedDate = new Date(reserveDate);
     const todayDate = new Date();
 
-    if(receivedDate < todayDate || receivedDate.getDay() == 1){
+    if(receivedDate < todayDate || receivedDate.getDay() === 1){
       setReservationsError({message: "Make sure the date is greater than today and all inputs are correct"})
       return false
     }
@@ -35,11 +35,29 @@ function ReservationForm() {
     return true;
   }
 
+  function phoneValidation(){
+    const regFull = new RegExp(/[0-9]{3}-[0-9]{3}-[0-9]{4}/);
+    const regNumber = new RegExp(/[0-9]{3}[0-9]{3}[0-9]{4}/);
+    if(regFull.test(mobileNumber)){
+      return true;
+    }else if(regNumber.test(mobileNumber)){
+      setMobileNumber(
+        mobileNumber[0]+mobileNumber[1]+mobileNumber[2]+"-"
+        +mobileNumber[3]+mobileNumber[4]+mobileNumber[5]+"-"
+        +mobileNumber[6]+mobileNumber[7]+mobileNumber[8]
+      )
+        return true;
+    }else{
+      return false;
+    }
+  }
+
   async function onSubmit(e){
     e.preventDefault();
 
     try{
-      if(dateValidation()){
+
+      if(dateValidation() && phoneValidation()){
         const abortController = new AbortController();
         const reserveObj = {
             "first_name": name,
@@ -49,15 +67,14 @@ function ReservationForm() {
             "reservation_time":reserveTime,
             people
         }
-        await insertReservation( reserveObj ,abortController.signal);
-        history.push('/dashboard');
-      }
+        const response = await insertReservation( reserveObj ,abortController.signal);
+        if(!response){
+          setReservationsError({message: "The time has to be after 10:30 AM and before 9:30 PM"});
+        }else{
+          history.push('/dashboard');
+        }
         
-        // abortController.abort();
-        // listReservations({ date }, abortController.signal)
-        // .then(setReservations)
-        // .catch(setReservationsError);
-        // return () => abortController.abort();
+      }
     }catch(e){
         setReservationsError({message: "Make sure the date is greater than today and all inputs are correct"});
         console.log(e);
@@ -82,8 +99,7 @@ function ReservationForm() {
              <label>Mobile Number</label>
             <input name="mobile_number" 
                 type="tel"
-                required
-                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                required 
                 onChange={(e)=>setMobileNumber(e.target.value)}
                 value={mobileNumber} />
             <label>Reservation Date</label>
