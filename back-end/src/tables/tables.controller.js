@@ -1,37 +1,31 @@
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const connection = require("../db/connection");
+
 /**
- * time validation handler for reservation
+ * params validation for reservation
  */
-async function validateTime(req, res, next) {
+async function validateAssign(req, res, next) {
   try{
-    const { reservation_date, reservation_time } = req.body;
+    const {table_id} = req.params;
+    const {data} = req.body;
 
-    // const todaysDate = new Date();
-    const date = new Date(`${reservation_date} ${reservation_time}`);
-    const hour = date.getHours();
-    const minutes = date.getMinutes();
+    const response = await connection('tables').where('table_id', table_id);
+  
+    if(response.length > 0){
+      res.locals = response[0];
 
-    // if(todaysDate.toDateString() == date.toDateString() ){
-    //   console.log("INSIDE OF TODAYS DATE---------------");
-    //   return res.status(400).send({error: "Invalid time frame"})
-    // }
-    console.log("hour", hour);
-    console.log("minutes",minutes)
-    if(hour == 10){
-      if(minutes < 30){
-        return res.status(400).send({error: "Invalid time frame"})
+      if(res.locals.capacity < data.people){
+        return res.status(400).send({error: 'Cannot assign a table with less capacity!'})
+      }else if(res.locals.reservation){
+        return res.status(400).send({error: 'The table was already being assigned. Please choose a different table'})
+      }else{
+        next();
       }
-    }else if(hour == 21){
-      if(minutes > 30){
-        return res.status(400).send({error: "Invalid time frame"})
-      }
-    }else if(hour < 10 || hour >= 22){
-      return res.status(400).send({error: "Invalid time frame"})
+      
+    }else{
+      return res.status(400).send({error: 'Table was not found!'})
     }
     
-    next();
-
   }catch(e){
     console.log("catched error at validateTime",e);
     return res.status(500).json({error: e})
@@ -74,7 +68,33 @@ async function insert(req, res, next) {
 
 }
 
+/**
+ * Update handler to assign a reservation to a table
+ */
+async function assign(req, res, next) {
+  try{
+    // const {table_id} = req.params;
+    // const {data} = req.body;
+    // console.log('reveived', data);
+    // console.log('table_id', table_id);
+    // const response = await connection('tables')
+    //   .update({reservation: data})
+    //   .where('table_id', table_id);
+    // console.log("insert response",response)
+    console.log('locals------------', res.locals)
+    return res.status(200).send({
+      data: 'Sucessfull'
+    })
+
+  }catch(e){
+    console.log("catched error",e);
+    return res.status(500).json({error: e})
+  }
+
+}
+
 module.exports = {
   list: asyncErrorBoundary(list),
-  insert: asyncErrorBoundary(insert)
+  insert: asyncErrorBoundary(insert),
+  assign: [validateAssign, asyncErrorBoundary(assign)]
 };

@@ -6,18 +6,11 @@ const connection = require("../db/connection");
 async function validateTime(req, res, next) {
   try{
     const { reservation_date, reservation_time } = req.body;
-
-    // const todaysDate = new Date();
     const date = new Date(`${reservation_date} ${reservation_time}`);
     const hour = date.getHours();
     const minutes = date.getMinutes();
-
-    // if(todaysDate.toDateString() == date.toDateString() ){
-    //   console.log("INSIDE OF TODAYS DATE---------------");
-    //   return res.status(400).send({error: "Invalid time frame"})
-    // }
-    console.log("hour", hour);
-    console.log("minutes",minutes)
+    
+    
     if(hour == 10){
       if(minutes < 30){
         return res.status(400).send({error: "Invalid time frame"})
@@ -42,6 +35,21 @@ async function validateTime(req, res, next) {
 /**
  * List handler for reservation resources
  */
+async function getReservation(req, res) {
+  try{
+    const {reservation_id} = req.body;
+    const response = await connection('reservations').where('reservation_id',reservation_id);
+    
+    return res.status(200).send({data: response[0]})
+  }catch(e){
+    console.log(e);
+    return res.status(500).send({error: e})
+  }
+}
+
+/**
+ * List handler for reservation resources
+ */
 async function list(req, res) {
   try{
     const {date} = req.params;
@@ -59,14 +67,21 @@ async function list(req, res) {
  */
 async function insert(req, res, next) {
   try{
-    const insertObj = {
-      ...req.body
-    }
+    /*
+    Validation between live and test requests
+    */
+   let insertObj;
 
-    const response = await connection('reservations').insert(insertObj);
+   if(req.body.data){
+    insertObj = {...req.body.data};
+   }else{
+    insertObj = {...req.body}
+   }
+    
 
+    const response = await connection('reservations').insert(insertObj).returning('reservation_id');
     return res.status(200).send({
-      data: 'Sucessfull'
+      data: {reservation_id: response[0]}
     })
 
   }catch(e){
@@ -78,5 +93,6 @@ async function insert(req, res, next) {
 
 module.exports = {
   list,
-  insert: [validateTime, asyncErrorBoundary(insert)]
+  insert: [validateTime, asyncErrorBoundary(insert)],
+  getReservation
 };

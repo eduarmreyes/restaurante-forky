@@ -10,4 +10,6 @@ const controller = require("./tables.controller");
 router.route("/").get(controller.list)
     .post(controller.insert);
 
+router.route("/:table_id/seat").put(controller.assign);
+
 module.exports = router;

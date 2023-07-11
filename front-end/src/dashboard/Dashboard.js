@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
+import ReservationCard from "../reservations/ReservationCard";
 
 /**
  * Defines the dashboard page.
@@ -43,11 +44,15 @@ function Dashboard({ date }) {
       </div>
 
       <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
+      {
+        reservations.map( (item)=> <ReservationCard key={item.reservation_id} data={item}/> )
+      }
 
       <h1>Tables</h1>
       <div className="d-md-flex mb-3">
-       {JSON.stringify(tables)}
+      {
+        tables.map( (item)=><div key={item.table_id} > <p>{item.table_name}</p> <div>{item.reservation? "Free": "occupied"}</div> </div>)
+      }
       </div>
     </main>
   );

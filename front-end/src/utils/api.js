@@ -108,3 +108,35 @@ export async function listTables(signal) {
   const url = new URL(`${API_BASE_URL}/tables`);
   return await fetchJson(url, { headers, signal }, [])
 }
+
+
+/**
+ * Retrieves existing reservation.
+ * @returns {Promise<reservation>}
+ */
+
+export async function getReservation(obj, signal) {
+  const url = `${API_BASE_URL}/reservations/get`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(obj),
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+/**
+ * General insert funciton 
+ * @returns {Promise<[any]>}
+ */
+export async function sendUpdate(body, path,signal) {
+  const url = `${API_BASE_URL}/${path}`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body),
+    signal,
+  };
+  return await fetch(url, options, {});
+}
