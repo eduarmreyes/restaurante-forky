@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import ReservationCard from "../reservations/ReservationCard";
+import TableCard from "../table/TableCard";
 
 /**
  * Defines the dashboard page.
@@ -34,7 +35,21 @@ function Dashboard({ date }) {
     loadDashboard();
   }, [date]);
 
-  
+  async function refresh() {
+    const abortController = new AbortController();
+    try{
+      setReservationsError(null);
+      const response = await listReservations({ date }, abortController.signal);
+      setReservations(response);
+
+      const tableResponse = await listTables(abortController.signal);
+      setTables(tableResponse);
+    }catch(e){
+      setReservationsError({error: "Couldn't load the records"});
+    }
+    
+    return () => abortController.abort();
+  }
 
   return (
     <main>
@@ -51,7 +66,7 @@ function Dashboard({ date }) {
       <h1>Tables</h1>
       <div className="d-md-flex mb-3">
       {
-        tables.map( (item)=><div key={item.table_id} > <p>{item.table_name}</p> <div>{item.reservation? "Free": "occupied"}</div> </div>)
+        tables.map( (item)=><TableCard refresh={refresh} key={item.table_id} data={item}/>)
       }
       </div>
     </main>

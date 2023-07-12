@@ -12,4 +12,7 @@ router.route("/").get(controller.list)
 
 router.route("/get").post(controller.getReservation);
 
+router.route("/:reservation_id/status").put(controller.update)
+    .delete(controller.destroy);
+
 module.exports = router;

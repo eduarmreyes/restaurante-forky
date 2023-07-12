@@ -42,9 +42,9 @@ function Reservation() {
         const data = {reservation_id: reservation.reservation_id, people: reservation.people};
         const response = await sendUpdate({data: data}, `tables/${table}/seat`,abortController.signal);
         
-        if(response.status == 400){
+        if(response.status === 400){
             const msg = await response.json();
-            setrequestError({error: msg.error});
+            setrequestError({message: msg.error});
         }else{
             history.push('/dashboard');
         }

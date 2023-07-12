@@ -53,9 +53,8 @@ async function getReservation(req, res) {
 async function list(req, res) {
   try{
     const {date} = req.params;
-    console.log('request received', date);
-    const response = await connection('reservations');
-    
+    const response = await connection('reservations')
+      .whereNot('status', 'finished');
     return res.status(200).send({data: response})
   }catch(e){
     console.log(e);
@@ -77,7 +76,6 @@ async function insert(req, res, next) {
    }else{
     insertObj = {...req.body}
    }
-    
 
     const response = await connection('reservations').insert(insertObj).returning('reservation_id');
     return res.status(200).send({
@@ -91,8 +89,57 @@ async function insert(req, res, next) {
 
 }
 
+/**
+ * Update handler for reservation resources
+ */
+async function update(req, res, next) {
+  try{
+    const { reservation_id} = req.params;
+    const insertObj = req.body.data;
+
+    const response = await connection('reservations')
+      .update(insertObj)
+      .where('reservation_id', reservation_id);
+
+    return res.status(200).send({
+      data: 'success!'
+    })
+
+  }catch(e){
+    console.log("catched error",e);
+    return res.status(500).json({error: e})
+  }
+
+}
+
+/**
+ * Update handler to free a reservation from a table
+ */
+async function finishStatus(req, res, next) {
+  try{
+    const { reservation_id } = req.params;
+    const response = await connection('reservations')
+      .update({status: 'finished'})
+      .where('reservation_id', reservation_id);
+
+    await connection('tables')
+      .update({reservation: null})
+      .where('reservation', reservation_id);
+    return res.status(200).send({
+      data: 'Sucessfull'
+    })
+
+  }catch(e){
+    console.log("catched error",e);
+    return res.status(500).json({error: e})
+  }
+
+}
+
 module.exports = {
   list,
   insert: [validateTime, asyncErrorBoundary(insert)],
-  getReservation
+  getReservation,
+  update: asyncErrorBoundary(update),
+  destroy: asyncErrorBoundary(finishStatus)
 };

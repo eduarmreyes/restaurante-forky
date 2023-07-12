@@ -19,6 +19,7 @@ async function validateAssign(req, res, next) {
       }else if(res.locals.reservation){
         return res.status(400).send({error: 'The table was already being assigned. Please choose a different table'})
       }else{
+        res.locals = { ...res.locals, data: {...data}};
         next();
       }
       
@@ -52,13 +53,16 @@ async function list(req, res) {
 async function insert(req, res, next) {
   try{
     const insertObj = {
-      ...req.body
+      ...req.body.data
     }
-
-    const response = await connection('tables').insert(insertObj);
-    console.log("insert response",response)
+    //validation of live and tests requests
+    if(insertObj.reservation_id){
+      insertObj.reservation = insertObj.reservation_id;
+      delete insertObj.reservation_id;
+    }
+    const response = await connection('tables').insert(insertObj).returning('table_id');
     return res.status(200).send({
-      data: 'Sucessfull'
+      data: {table_id: response[0]}
     })
 
   }catch(e){
@@ -71,17 +75,66 @@ async function insert(req, res, next) {
 /**
  * Update handler to assign a reservation to a table
  */
-async function assign(req, res, next) {
+async function setSeatedStatus(req, res, next) {
   try{
-    // const {table_id} = req.params;
-    // const {data} = req.body;
-    // console.log('reveived', data);
-    // console.log('table_id', table_id);
-    // const response = await connection('tables')
-    //   .update({reservation: data})
-    //   .where('table_id', table_id);
-    // console.log("insert response",response)
-    console.log('locals------------', res.locals)
+
+    await connection.transaction(async trx => {
+    
+      await connection('reservations')
+      .update({status: 'seated'})
+      .where('reservation_id', res.locals.data.reservation_id);
+    
+      await connection('tables')
+        .update({reservation: res.locals.data.reservation_id})
+        .where('table_id', res.locals.table_id);
+      })
+
+    // const response = await connection('reservations')
+    //   .update({status: 'seated'})
+    //   .where('reservation_id', res.locals.data.reservation_id);
+
+    return res.status(200).send({
+      data: 'Sucessfull'
+    })
+
+  }catch(e){
+    console.log("catched error",e);
+    return res.status(500).json({error: e})
+  }
+
+}
+
+/**
+ * Update handler to check if a reservation is found from a tables
+ */
+async function checkAssigned(req, res, next) {
+  try{
+    res.locals = req.params;
+    res.locals = {...res.locals, ...req.body};
+    
+    const response = await connection('tables')
+      .where('table_id', res.locals.table_id);
+
+    if(!response[0].reservation){
+      return res.status(400).send({error: 'The table has not been assigned'})
+    }
+    next();
+  }catch(e){
+    console.log("catched error",e);
+    return res.status(500).json({error: e})
+  }
+
+}
+
+/**
+ * Update handler to free a reservation from a table
+ */
+async function nullAssign(req, res, next) {
+  try{
+    const response = await connection('tables')
+      .update({reservation: null})
+      .where('table_id', res.locals.table_id);
+
     return res.status(200).send({
       data: 'Sucessfull'
     })
@@ -96,5 +149,6 @@ async function assign(req, res, next) {
 module.exports = {
   list: asyncErrorBoundary(list),
   insert: asyncErrorBoundary(insert),
-  assign: [validateAssign, asyncErrorBoundary(assign)]
+  assign: [validateAssign, asyncErrorBoundary(setSeatedStatus)],
+  delete: [checkAssigned, asyncErrorBoundary(nullAssign)]
 };

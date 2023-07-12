@@ -1,6 +1,6 @@
-import React from "react";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-
+import React, {useState} from "react";
+import { sendUpdate } from "../utils/api";
+import generator from "../utils/generator";
 /**
  * Defines the ReservationCard page.
  * @param date
@@ -9,12 +9,39 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
  */
 function ReservationCard({data}) {
   const {reservation_id, first_name, last_name, people} = data;
-  const history = useHistory();
+  const [status, setStatus] = useState(data.status);
+  let btn;
 
-  function seat(id){
-    console.log("clicked bby");
-    history.push(`/reservations/${id}/seat`);
+  function generateBtn(){
+
+    switch (status) {
+      case generator.status.BOOKED:
+        btn = <button onClick={()=>seat()} href={`/reservations/${reservation_id}/seat`} >Seat</button>
+      break;
+      case generator.status.SEATED:
+        btn = null;
+      break;
+      default:
+        btn = null;
+        break;
+    }
   }
+  async function seat(){
+    try{
+      const abortController = new AbortController();
+      const statusValue = generator.changeStatus(status);
+      const statusObj = {data: {status: statusValue}};
+      setStatus(statusValue);
+      await sendUpdate(statusObj, 'reservations/'+reservation_id+'/status', abortController.signal);
+      
+    }catch(e){
+      console.log(e);
+    }
+    
+  }
+
+  
+  generateBtn();
 
   return (
     <div>
@@ -22,7 +49,8 @@ function ReservationCard({data}) {
       <h3> {first_name} </h3> 
       <h3> {last_name} </h3>
       <h3> People: {people} </h3> 
-    <button onClick={()=>seat(reservation_id)} href={`/reservations/${reservation_id}/seat`} >Seat</button>
+      <h3> Status: <span data-reservation-id-status={reservation_id}>{status}</span> </h3> 
+      {btn}
     </div>
   );
 }
