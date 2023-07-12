@@ -61,7 +61,7 @@ export async function insertTable(table, signal) {
   const options = {
     method: "POST",
     headers,
-    body: JSON.stringify(table),
+    body: JSON.stringify({data: table}),
     signal,
   };
   return await fetchJson(url, options, {});
@@ -105,7 +105,7 @@ export async function listReservations(params, signal) {
  */
 
 export async function listTables(signal) {
-  const url = new URL(`${API_BASE_URL}/tables`);
+  const url = new URL(`/tables`);
   return await fetchJson(url, { headers, signal }, [])
 }
 
@@ -136,6 +136,20 @@ export async function sendUpdate(body, path,signal) {
     method: "PUT",
     headers,
     body: JSON.stringify(body),
+    signal,
+  };
+  return await fetch(url, options, {});
+}
+
+/**
+ * General delete funciton 
+ * @returns {Promise<[any]>}
+ */
+export async function destroy(path,signal) {
+  const url = `${API_BASE_URL}/${path}`;
+  const options = {
+    method: "DELETE",
+    headers,
     signal,
   };
   return await fetch(url, options, {});
