@@ -8,10 +8,10 @@ require('dotenv').config();
 const path = require("path");
 
 const {
-  DATABASE_URL = "postgres://kjtejmox:fR91SkV7qagzYAqPIXVIFCcRsd55jBZH@stampy.db.elephantsql.com/kjtejmox",
-  DATABASE_URL_DEVELOPMENT = "postgres://vetjajbf:GJqCq4GeFXrgwl_dRk6xVpZwSsv-4YMB@stampy.db.elephantsql.com/vetjajbf",
-  DATABASE_URL_TEST = "postgres://vetjajbf:GJqCq4GeFXrgwl_dRk6xVpZwSsv-4YMB@stampy.db.elephantsql.com/vetjajbf",
-  DATABASE_URL_PREVIEW = "=postgres://vetjajbf:GJqCq4GeFXrgwl_dRk6xVpZwSsv-4YMB@stampy.db.elephantsql.com/vetjajbf",
+  DATABASE_URL = "postgres://ataxcgjq:oqoow7HFHAbeT0PBWMiqcmn_76kN-Q8u@stampy.db.elephantsql.com/ataxcgjq",
+  DATABASE_URL_DEVELOPMENT = "postgres://vdtfgrfa:sKLprhQSZewQZthCvr8oYqOx2OyhnGvX@stampy.db.elephantsql.com/vdtfgrfa",
+  DATABASE_URL_TEST = "postgres://vdtfgrfa:sKLprhQSZewQZthCvr8oYqOx2OyhnGvX@stampy.db.elephantsql.com/vdtfgrfa",
+  DATABASE_URL_PREVIEW = "postgres://vdtfgrfa:sKLprhQSZewQZthCvr8oYqOx2OyhnGvX@stampy.db.elephantsql.com/vdtfgrfa",
   DEBUG,
 } = process.env;
 

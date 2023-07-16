@@ -37,6 +37,9 @@ function Routes() {
       <Route exact path="/reservations/new">
         <ReservationForm/>
       </Route>
+      <Route exact path="/reservations/:reservation_id/edit">
+        <ReservationForm/>
+      </Route>
       <Route>
         <NotFound />
       </Route>

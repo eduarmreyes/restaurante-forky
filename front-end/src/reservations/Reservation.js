@@ -18,36 +18,41 @@ function Reservation() {
   const history = useHistory();
 
   useEffect(()=>{
+    const abortController = new AbortController();
+
     async function loadTables() {
-      const abortController = new AbortController();
       try{
-        const response = await getReservation({reservation_id}, abortController.signal);
+        const response = await getReservation(reservation_id, abortController.signal);
         setReservation(response)
         const tableResponse = await listTables(abortController.signal);
         setTables(tableResponse);
       }catch(e){
         setrequestError({error: "Couldn't load the records"});
       }
-      
-      return () => abortController.abort();
     }
 
     loadTables();
+
+    return () => abortController.abort();
   }, [reservation_id]);
 
   async function onSubmit(e){
     e.preventDefault();
     try{
+      if(table !== ""){
         const abortController = new AbortController();
         const data = {reservation_id: reservation.reservation_id, people: reservation.people};
         const response = await sendUpdate({data: data}, `tables/${table}/seat`,abortController.signal);
         
-        if(response.status === 400){
+        if(response.status === 400 || response.status === 404){
             const msg = await response.json();
             setrequestError({message: msg.error});
         }else{
             history.push('/dashboard');
         }
+      }else{
+        setrequestError({message: "Please select a table"});
+      }
         
     }catch(e){
         console.log(e);
@@ -64,7 +69,7 @@ function Reservation() {
     <form onSubmit={onSubmit}>
       <TableSelect items={tables} table={table} setTable={setTable} />
       <ErrorAlert error={requestError} />
-      <button type="submit">Assign to table</button>
+      <button className="btn" type="submit">Assign to table</button>
     </form>
       
     </main>

@@ -20,7 +20,8 @@ const generator = {
     status: {
         BOOKED: 'booked',
         SEATED: 'seated',
-        FINISHED: 'finished'
+        FINISHED: 'finished',
+        CANCELED: 'cancelled'
     }
 
 }

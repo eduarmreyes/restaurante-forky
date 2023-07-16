@@ -1,4 +1,6 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
+import { listReservations } from "../utils/api";
+import ReservationCard from "../reservations/ReservationCard";
 
 /**
  * Defines the main layout of the application.
@@ -9,15 +11,56 @@ import React, {useState} from "react";
  */
 function Search() {
   const [number, setNumber] = useState('');
+  const [reservation, setReservation] = useState([]);
+
+  const search = async function(e){
+    try{
+      e.preventDefault();
+      const abortController = new AbortController();
+      const response = await listReservations({ mobile_number: number }, abortController.signal);
+      setReservation(response);
+    }catch(er){
+      console.log(er)
+    }
+
+  }
+
+  useEffect(()=>{
+    
+    const abortController = new AbortController();
+    async function getReservations(){
+      try{
+        const response = await listReservations({  }, abortController.signal);
+        setReservation(response); 
+      }catch(e){
+        console.log(e)
+      }
+      
+    }
+    
+    getReservations();
+    
+    return ()=>abortController.abort()
+  }, []);
+
 
   return (
     <div className="container-fluid">
-      <div className="col">
-      <label>Mobile</label>
-        <input name="mobile_number"
-           onChange={(e)=>setNumber(e.target.value)}
-           value={number} />
-      </div>
+        <form onSubmit={search}>
+          <label>Mobile</label>
+            <input name="mobile_number"
+              placeholder="Enter a customer's phone number"
+              onChange={(e)=>setNumber(e.target.value)}
+              value={number} />
+          <button className="btn blue" type="submit">Find</button>
+        </form>
+
+        {
+        reservation.length > 0?
+        (reservation.map( (item)=> <ReservationCard key={item.reservation_id} data={item}/>)
+         ): <p>No reservations found</p>
+      }
+
     </div>
   );
 }

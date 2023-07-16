@@ -14,9 +14,9 @@ function TableCard({data, refresh}) {
     if(window.confirm('Is this table ready to seat new guests?')){
       try{
         const abortController = new AbortController();
-        const response = await destroy(`reservations/${reservation}/status`,abortController.signal);
+        const response = await destroy(`tables/${id}/seat`,abortController.signal);
 
-        if(response.status == 400){
+        if(response.status === 400){
           alert('There was an error')
         }else{
           refresh();
@@ -28,11 +28,14 @@ function TableCard({data, refresh}) {
   }
 
   return (
-    <div>
-        <h2>Name: {table_name}</h2>
+    <div className="flex card-container table-container">
+        <h4>Name: {table_name}</h4>
         {
           reservation? 
-            <div><p data-table-id-status={table_id}>occupied</p><button data-table-id-finish={table_id} onClick={()=>onClick(table_id)}>Finish</button></div>
+            <div className="actions-container">
+              <p data-table-id-status={table_id}>occupied</p>
+              <button className="btn green" data-table-id-finish={table_id} onClick={()=>onClick(table_id)}>Finish</button>
+            </div>
             : <div data-table-id-status={table_id}>Free </div>
         }
     </div>

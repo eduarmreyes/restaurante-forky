@@ -2,3 +2,44 @@
   background-color: #393a44;
   min-width: 200px;
 }
+.table-container{
+  margin: 10px;
+}
+.card-container{
+	border-radius: 1.5em;
+	margin: 8px;
+	box-shadow: 4.0px 8.0px 8.0px hsl(0deg 0% 0% / 0.38);
+}
+
+.card-container:hover{
+	box-shadow: 5.8px 11.7px 11.7px hsl(0deg 0% 0% / 0.32);
+}
+.table-container{
+	padding: 8px;
+}
+.btn {
+	appearance: none;
+	border: none;
+	font-size: inherit;
+	margin: 6px;;
+	border-radius: 2em;
+	align-items: center;
+	cursor: pointer;
+}
+.blue{
+  background: blue;
+	color: white;
+}
+
+.grey{
+	background: #393a44;
+	color: white;
+}
+.red{
+	background: red;
+	color: white;
+}
+.green{
+	background: rgb(46, 210, 79);
+	color: white;
+}

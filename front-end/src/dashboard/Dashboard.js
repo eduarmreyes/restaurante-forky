@@ -15,12 +15,17 @@ function Dashboard({ date }) {
   const [tables, setTables] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
 
+
   useEffect(()=>{
+    const abortController = new AbortController();
+
     async function loadDashboard() {
-      const abortController = new AbortController();
-      try{
+      
+      try{ 
         setReservationsError(null);
-        const response = await listReservations({ date }, abortController.signal);
+        const queryParams = new URLSearchParams(window.location.search);
+        
+        const response = await listReservations({ date: queryParams.get('date')? queryParams.get('date'): date }, abortController.signal);
         setReservations(response);
 
         const tableResponse = await listTables(abortController.signal);
@@ -29,10 +34,11 @@ function Dashboard({ date }) {
         setReservationsError({error: "Couldn't load the records"});
       }
       
-      return () => abortController.abort();
     }
 
     loadDashboard();
+
+    return () => abortController.abort()
   }, [date]);
 
   async function refresh() {
@@ -48,19 +54,18 @@ function Dashboard({ date }) {
       setReservationsError({error: "Couldn't load the records"});
     }
     
-    return () => abortController.abort();
   }
 
   return (
     <main>
       <h1>Dashboard</h1>
-      <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for date</h4>
+      <div className="d-md-flex">
+        <h4 className="mb-0">Reservation</h4>
       </div>
 
       <ErrorAlert error={reservationsError} />
       {
-        reservations.map( (item)=> <ReservationCard key={item.reservation_id} data={item}/> )
+        reservations.map( (item)=> <ReservationCard refresh={refresh} key={item.reservation_id} data={item}/> )
       }
 
       <h1>Tables</h1>

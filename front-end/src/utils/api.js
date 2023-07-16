@@ -115,12 +115,12 @@ export async function listTables(signal) {
  * @returns {Promise<reservation>}
  */
 
-export async function getReservation(obj, signal) {
-  const url = `${API_BASE_URL}/reservations/get`;
+export async function getReservation(id, signal) {
+
+  const url = `${API_BASE_URL}/reservations/${id}`;
   const options = {
-    method: "POST",
+    method: "GET",
     headers,
-    body: JSON.stringify(obj),
     signal,
   };
   return await fetchJson(url, options, {});
@@ -153,4 +153,16 @@ export async function destroy(path,signal) {
     signal,
   };
   return await fetch(url, options, {});
+}
+
+/**
+ * General get funciton 
+ * @returns {Promise<[any]>}
+ */
+export async function getRequest(params, path,signal) {
+  const url = new URL(`${API_BASE_URL}/${path}`);
+  Object.entries(params).forEach(([key, value]) =>
+    url.searchParams.append(key, value.toString())
+  );
+  return await fetch(url, {headers, signal})
 }

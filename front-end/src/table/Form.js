@@ -40,7 +40,7 @@ function Form() {
         const abortController = new AbortController();
         const reserveObj = {
             "table_name": table,
-            "capacity": capacity
+            "capacity": parseInt(capacity)
         }
         const response = await insertTable( reserveObj ,abortController.signal);
         
@@ -75,8 +75,12 @@ function Form() {
 
             <ErrorAlert error={reservationsError}/>
             
-            <button type="submit">Submit</button>
-            <button type="button"
+            <button 
+              className="btn blue"
+              type="submit">Submit</button>
+            <button 
+              className="btn red"
+              type="button"
               onClick={(e)=>{cancelClick(e)}}>cancel</button>
         </form>
       </div>

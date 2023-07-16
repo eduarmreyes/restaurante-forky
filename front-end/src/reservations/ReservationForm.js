@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { insertReservation } from "../utils/api";
-import { useHistory } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { insertReservation, getReservation, sendUpdate } from "../utils/api";
+import { formatAsDate } from "../utils/date-time";
+import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
 /**
  * Defines the ReservationForm page.
@@ -15,8 +16,40 @@ function ReservationForm() {
   const [reserveDate, setReserveDate] = useState('');
   const [reserveTime, setReserveTime] = useState('');
   const [people, setPeople] = useState('');
-  const history = useHistory();
   const [reservationsError, setReservationsError] = useState(null);
+  const history = useHistory();
+  const params = useParams();
+
+  useEffect(()=>{
+    const abortController = new AbortController();
+
+    async function retrieveReservation(){  
+      try{
+        const response = await getReservation( params.reservation_id, abortController.signal);
+        
+        setName(response.first_name);
+        setLastName(response.last_name);
+        setMobileNumber(response.mobile_number);
+        const date = new Date(response.reservation_date)
+        setReserveDate(formatAsDate(date.toISOString()));
+  
+        setReserveTime(response.reservation_time);
+        setPeople(response.people);
+
+      }catch(e){
+        console.log(e)
+      }
+
+      
+    }
+    
+    if(params.reservation_id){
+      retrieveReservation();
+    }
+    
+    return ()=>abortController.abort()
+
+  }, [params.reservation_id])
 
   function cancelClick(e){
     e.preventDefault();
@@ -26,15 +59,27 @@ function ReservationForm() {
   function dateValidation(){
     const receivedDate = new Date(reserveDate);
     const todayDate = new Date();
+    const errors = [];//array containing the error messages
+    let valid = true;//value will be false if a validation fails
 
-    if(receivedDate < todayDate || receivedDate.getDay() === 1){
-      setReservationsError({message: "Make sure the date is greater than today and all inputs are correct"})
-      return false
+    if(receivedDate < todayDate){
+      errors.push("Only future dates are accepted");
+      valid = false;
     }
 
-    return true;
-  }
+    if(receivedDate.getDay() === 1){
+      errors.push("Cannot make reservation for Tuesdays");
+      valid = false;
+    }
 
+    if(!valid){
+      const message = errors.map(value=><p key={value}>{value}</p>);//concatenating error messages
+      setReservationsError({message: message})
+    }
+
+    return valid;
+    
+  }
   function phoneValidation(){
     const regFull = new RegExp(/[0-9]{3}-[0-9]{3}-[0-9]{4}/);
     const regNumber = new RegExp(/[0-9]{3}[0-9]{3}[0-9]{4}/);
@@ -65,13 +110,24 @@ function ReservationForm() {
             "mobile_number":mobileNumber,
             "reservation_date":reserveDate,
             "reservation_time":reserveTime,
-            people
+            "people": parseInt(people)
         }
-        const response = await insertReservation( reserveObj ,abortController.signal);
-        if(!response){
-          setReservationsError({message: "The time has to be after 10:30 AM and before 9:30 PM"});
+        let response;
+        let msg;
+        if(params.reservation_id){
+          reserveObj.reservation_id = params.reservation_id;
+
+          response = await sendUpdate({data: reserveObj}, 'reservations/'+reserveObj.reservation_id, abortController.signal);
+          msg = "Something went wrong. Please try again";
         }else{
-          history.push('/dashboard');
+          response = await insertReservation( {data: reserveObj} ,abortController.signal);
+          msg = "The time has to be after 10:30 AM and before 9:30 PM";
+        }
+
+        if(!response){
+          setReservationsError({message: msg});
+        }else{
+          history.push(`/dashboard?date=${reserveDate}`);
         }
         
       }

@@ -8,11 +8,11 @@ const router = require("express").Router();
 const controller = require("./reservations.controller");
 
 router.route("/").get(controller.list)
-    .post(controller.insert);
+    .post(controller.insert)
 
-router.route("/get").post(controller.getReservation);
+router.route("/:reservation_id").get(controller.retrieveReservation)
+    .put(controller.update);
 
-router.route("/:reservation_id/status").put(controller.update)
-    .delete(controller.destroy);
+router.route("/:reservation_id/status").put(controller.updateStatus);
 
 module.exports = router;
