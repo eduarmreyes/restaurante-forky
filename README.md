@@ -7,7 +7,12 @@
 1. Run `npm install` to install project dependencies.
 1. Run `npm run start:dev` to start your server in development mode.
 
-**Important Note**: If you are having `error:0308010C:digital envelope routines::unsupported` when running the start or test script, please add `--openssl-legacy-provider` to the 'start' and 'test:start:frontend' script and try again.
+## Important Note: 
+If you are having `error:0308010C:digital envelope routines::unsupported` when running the start or test script, please add `--openssl-legacy-provider` to the 'start' and 'test:start:frontend' script and try again.
+Example:
+```
+"start": "react-scripts --openssl-legacy-provider start"
+```
 
 ## Running tests
 
