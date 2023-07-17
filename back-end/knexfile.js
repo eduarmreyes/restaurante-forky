@@ -8,10 +8,10 @@ require('dotenv').config();
 const path = require("path");
 
 const {
-  DATABASE_URL = "postgres://ataxcgjq:oqoow7HFHAbeT0PBWMiqcmn_76kN-Q8u@stampy.db.elephantsql.com/ataxcgjq",
-  DATABASE_URL_DEVELOPMENT = "postgres://vdtfgrfa:sKLprhQSZewQZthCvr8oYqOx2OyhnGvX@stampy.db.elephantsql.com/vdtfgrfa",
-  DATABASE_URL_TEST = "postgres://vdtfgrfa:sKLprhQSZewQZthCvr8oYqOx2OyhnGvX@stampy.db.elephantsql.com/vdtfgrfa",
-  DATABASE_URL_PREVIEW = "postgres://vdtfgrfa:sKLprhQSZewQZthCvr8oYqOx2OyhnGvX@stampy.db.elephantsql.com/vdtfgrfa",
+  DATABASE_URL = "postgres://aaxqthhz:idskcTl8frGhbM4Lwa126x7CrmDgW2tm@stampy.db.elephantsql.com/aaxqthhz",
+  DATABASE_URL_DEVELOPMENT = "postgres://aaxqthhz:idskcTl8frGhbM4Lwa126x7CrmDgW2tm@stampy.db.elephantsql.com/aaxqthhz",
+  DATABASE_URL_TEST = "postgres://aaxqthhz:idskcTl8frGhbM4Lwa126x7CrmDgW2tm@stampy.db.elephantsql.com/aaxqthhz",
+  DATABASE_URL_PREVIEW = "postgres://aaxqthhz:idskcTl8frGhbM4Lwa126x7CrmDgW2tm@stampy.db.elephantsql.com/aaxqthhz",
   DEBUG,
 } = process.env;
 
