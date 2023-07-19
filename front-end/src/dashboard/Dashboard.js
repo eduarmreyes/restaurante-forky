@@ -3,6 +3,7 @@ import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import ReservationCard from "../reservations/ReservationCard";
 import TableCard from "../table/TableCard";
+import { formatAsDate } from "../utils/date-time";
 
 /**
  * Defines the dashboard page.
@@ -14,6 +15,7 @@ function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
   const [tables, setTables] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(formatAsDate(date));
 
 
   useEffect(()=>{
@@ -41,6 +43,17 @@ function Dashboard({ date }) {
     return () => abortController.abort()
   }, [date]);
 
+  async function searchReservation() {
+    const abortController = new AbortController();
+    try{
+      const response = await listReservations({ date: selectedDate }, abortController.signal);
+      setReservations(response);
+    }catch(e){
+      setReservationsError({error: "Couldn't load the records"});
+    }
+    
+  }
+
   async function refresh() {
     const abortController = new AbortController();
     try{
@@ -61,6 +74,10 @@ function Dashboard({ date }) {
       <h1>Dashboard</h1>
       <div className="d-md-flex">
         <h4 className="mb-0">Reservation</h4>
+      </div>
+      <div>
+        <input value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)} type="date" />
+        <p className="btn blue" onClick={searchReservation}>Search reservation</p>
       </div>
 
       <ErrorAlert error={reservationsError} />

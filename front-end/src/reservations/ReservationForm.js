@@ -93,6 +93,7 @@ function ReservationForm() {
       )
         return true;
     }else{
+      setReservationsError({message: "The phone number does not meet format criteria"});
       return false;
     }
   }

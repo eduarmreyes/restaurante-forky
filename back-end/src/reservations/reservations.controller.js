@@ -284,31 +284,6 @@ async function unknownStatus(req, res, next) {
 
 }
 
-/**
- * Update handler to free a reservation from a table
- */
-async function finishStatus(req, res, next) {
-  try{
-    const { reservation_id } = req.params;
-    console.log('pos para aca we')
-    const response = await connection('reservations')
-      .update({status: 'finished'})
-      .where('reservation_id', reservation_id);
-
-    await connection('tables')
-      .update({reservation: null})
-      .where('reservation', reservation_id);
-    return res.status(200).send({
-      data: 'Sucessfull'
-    })
-
-  }catch(e){
-    console.log("catched error",e);
-    return res.status(500).json({error: e})
-  }
-
-}
-
 module.exports = {
   list: asyncErrorBoundary(list),
   insert: [validateTime, validateData, validateStatus, asyncErrorBoundary(insert)],

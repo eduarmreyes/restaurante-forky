@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import { listReservations } from "../utils/api";
 import ReservationCard from "../reservations/ReservationCard";
 
@@ -24,24 +24,6 @@ function Search() {
     }
 
   }
-
-  useEffect(()=>{
-    
-    const abortController = new AbortController();
-    async function getReservations(){
-      try{
-        const response = await listReservations({  }, abortController.signal);
-        setReservation(response); 
-      }catch(e){
-        console.log(e)
-      }
-      
-    }
-    
-    getReservations();
-    
-    return ()=>abortController.abort()
-  }, []);
 
 
   return (
